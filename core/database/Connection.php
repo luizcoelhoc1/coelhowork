@@ -1,10 +1,7 @@
-<?php
+<?php 
+final class Connection {
 
-final class Conexao {
-
-    private function __construct() {
-        
-    }
+    private function __construct() {}
 
     public static function open(array $info = null) {
 
@@ -30,5 +27,3 @@ final class Conexao {
     }
 
 }
-
-?>

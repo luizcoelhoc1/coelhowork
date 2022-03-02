@@ -22,6 +22,7 @@ const __LOGINPATHFILECLASS = "login/Login";
 
 /* Layout Padrão das páginas */
 const __LAYOUTDEFAULT = __DIR__ . "/view/layout.tpl";
+const __TEMPLATEDEFAULT = __DIR__ . "/view/layout.tpl";
 
 /* Class of first page */
 const __FIRSTPAGE = "Index";

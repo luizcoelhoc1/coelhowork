@@ -15,12 +15,14 @@ function boolToStr($value) {
     return $value ? 'true' : 'false';
 }
 
-function getDir($dir) {
-    $dirs = scandir("$dir");
-    unset($dirs[0]);
-    unset($dirs[1]);
-    sort($dirs);
-    return $dirs;
+if (!function_exists("getDir")) {
+    function getDir($dir) {
+        $dirs = scandir("$dir");
+        unset($dirs[0]);
+        unset($dirs[1]);
+        sort($dirs);
+        return $dirs;
+    }
 }
 
 function createMenuPageControl($numberPagePreSelected, $numberPagePosSelected, $totalNumberPage, $numberSelected, $everSameItem = false, array $layouts = null) {
@@ -530,4 +532,27 @@ function strposn($haystack, $needle, $num = 1, $offset = 0) {
 
 function getUrlPublicHtml() {
     return "http://$_SERVER[SERVER_NAME]/";
+}
+
+function require_once_all_on_dir($dir, $exceptions = []) {
+    if (empty($exceptions)) {
+        $files = glob($dir . '*.php');
+        foreach ($files as $file) {
+            require_once($file);   
+        }
+    } else {
+        $files = glob($dir . '*.php');
+        dd($files);
+        foreach ($files as $file) {
+            if (!in_array($file, $exceptions)) 
+                require_once($file);   
+        }
+    }
+}
+
+function dd(...$params) {
+    echo "<pre>";
+    print_r($params);
+    echo "</pre>";
+    die();
 }

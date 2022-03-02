@@ -1,23 +1,41 @@
 <?php
 
-require_once 'config.php';
-include_once 'functions.php';
-include_once 'autoload.php';
-include_once 'class/model/database/DB.functions.php';
-include_once 'plugins/simple_html_dom/simple_html_dom.php';
-global $console;
-$console = array();
+//load cores
+require_once "core/aux_functions.php";
+require_once_all_on_dir("core/");
+require_once_all_on_dir("core/Controller/");
+require_once_all_on_dir("core/database/");
 
+//load config
+require_once "config/config.php";
+$configPath = "config/" . getenv('ENVELOPMENT') . "/";
+require_once_all_on_dir($configPath);
+const __TEMPLATEDEFAULT = __DIR__ . "/template/default_template.php";
 
-try {
-    Transacao::open();
+//route
+require_once "routes.php";
+$path = $_SERVER["REQUEST_URI"];
+$path = str_replace("?" . $_SERVER["QUERY_STRING"], "", $path);
+$path = trim($path, "/");
+foreach ($routes as $route => $controller) {
+    preg_match($route, $path, $matches);
+    if (!empty($matches)) {
+        require_once $controller;
+        $class = explode("/", $controller);
+        $class = end($class);
+        $class = str_replace(".php", "", $class);
+        break;
+    }
+}
 
-    /*
-     * Get user required class 
-     */
+//if not find by route find by path
+//todo...
+/**
+ * 
     $path = $_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"];
     $path = str_replace("?" . $_SERVER["QUERY_STRING"], "", $path);
     $path = str_replace(__ROOT, "", $path);
+
     if ($path != "/") {
         $find = true;
         $path = __PATHFILESCLASS . $path;
@@ -62,66 +80,44 @@ try {
         $class = explode("/", $path);
         $class = str_replace(__EXTENSIONFILESCLASS, "", $class[count($class) - 1]);
     }
-
-    /*
-     * Prepare a page settings
-     */
-    require_once $path;
-    $pagina = new $class;
-    $pagina->data = new stdClass();
-    checkRequests($pagina);
-    if (!isset($pagina->layout))
-        $pagina->layout = __LAYOUTDEFAULT;
-
-
-    /*
-     * get page or final result
-     */
-    $method = __METHODNAME;
-    $pagina->$method();
-    //set parameters 
-    $layout = new Template($pagina->layout);
-    foreach ($pagina->data as $key => $result) {
-        $layout->set($key, $result);
+ */
+$pagina = new $class();
+try {
+    if ($pagina->open_transaction) {
+        Transaction::open();
     }
-
-    //set lang
-    $langDefaultBrowser = locale_accept_from_http($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
-    $langPath = is_file($langPath = "lang/" . $langDefaultBrowser . ".php") ?
-            $langPath :
-            "lang/" . __LANGDEFAULT . ".php";
-    require_once $langPath;
-    $fullPage = new Template($layout->output());
-    Template::$startKey = "{@";
-    Template::$endKey = "}";
-    foreach (__LANGVARS as $nameVarLang => $valueVarLang) {
-        $fullPage->set($nameVarLang, $valueVarLang);
+    
+    ob_start();
+    $pagina->loading();
+    $pagina->checks();
+    $method = strtolower($_SERVER['REQUEST_METHOD']);
+    if (method_exists($pagina, $method)) {
+        $params = explode("/", $path);
+        $pagina->$method(...$params);
     }
-
-    //set header and body
-    header('Content-Type: text/html; charset=UTF-8');
-    echo $fullPage->output();
-
-    Transacao::close();
-
-    //echo console if required
-    if (!empty($console) && ini_get('display_errors')) {
-        echo "<br />";
-        echo "<br />";
-        echo "<br />";
-        echo "<pre>";
-        print_r($console);
-        echo "</pre>";
-    }
-} catch (Exception $e) {
-    Transacao::rollback();
-    if (($code = $e->getCode()) !== 0) {
-        if (ini_get('display_errors')) {
-            displayErrorsDetails($e);
-        } else {
-            http_response_code($code);
+    /**
+        //set lang
+        $langDefaultBrowser = locale_accept_from_http($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+        $langPath = is_file($langPath = "lang/" . $langDefaultBrowser . ".php") ?
+                $langPath :
+                "lang/" . __LANGDEFAULT . ".php";
+        require_once $langPath;
+        $fullPage = new Template($layout->output());
+        Template::$startKey = "{@";
+        Template::$endKey = "}";
+        foreach (__LANGVARS as $nameVarLang => $valueVarLang) {
+            $fullPage->set($nameVarLang, $valueVarLang);
         }
+     */
+    $var = ob_get_contents();
+    ob_end_clean();
+    $pagina->output($var);
+    $pagina->rollback_on_finish ? Transaction::rollback() : Transaction::close();
+} catch (Exception $e) {
+    if ($pagina->rollback_on_exception) {
+        Transaction::rollback();
     }
+    $pagina->output($pagina->code ?? 200);
 }
 
 function console($item) {
@@ -235,18 +231,4 @@ function showLoginScreen($incorrectPass, &$pagina) {
     $pagina->incorrectPass = $incorrectPass;
     $pagina->data = new stdClass();
 }
-
-function displayErrorsDetails($e) {
-    echo "<pre style = 'background-color: red; color: white; padding: 1%;'>";
-    echo $e->getMessage();
-    echo "<br />";
-    echo "Code: " . $e->getCode();
-    echo "<br />";
-    $paths = $e->getTrace();
-    foreach ($paths as $path) {
-        echo $path["file"] . ":" . $path["line"] . "<br />";
-    }
-    echo "</pre>";
-}
-
 ?>
