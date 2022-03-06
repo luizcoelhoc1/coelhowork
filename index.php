@@ -81,8 +81,17 @@ foreach ($routes as $route => $controller) {
         $class = str_replace(__EXTENSIONFILESCLASS, "", $class[count($class) - 1]);
     }
  */
-$pagina = new $class();
+
+if (class_exists($class ?? "")) {
+    $pagina = new $class();
+} else {
+    $pagina = new Controller();
+}
+
 try {
+    if (!$pagina->controller_exists()) {
+        throw new Exception("Not found", 404);
+    }
     if ($pagina->open_transaction) {
         $connection = Transaction::open();
         if ($pagina->throw_error_on_connection_fail) {
