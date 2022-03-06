@@ -86,7 +86,7 @@ try {
     if ($pagina->open_transaction) {
         $connection = Transaction::open();
         if ($pagina->throw_error_on_connection_fail) {
-            throw new Exception("Error on try connect in database");
+            throw new Exception("Error on try connect in database", 500);
         }
     }
     
@@ -101,12 +101,14 @@ try {
     $var = ob_get_contents();
     ob_end_clean();
     $pagina->output($var);
-    $pagina->rollback_on_finish ? Transaction::rollback() : Transaction::close();
-} catch (Exception $e) {
-    if ($pagina->rollback_on_exception) {
-        Transaction::rollback();
+    if (Transaction::get()) {
+        $pagina->rollback_on_finish ? Transaction::rollback() : Transaction::close();
     }
-    $pagina->output($pagina->code ?? 200);
+} catch (Exception $e) {
+    if (Transaction::get()) {
+        $pagina->rollback_on_exception ? Transaction::rollback() : Transaction::close();
+    }
+    $pagina->output_error($e);
 }
 
 function console($item) {

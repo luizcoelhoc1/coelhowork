@@ -556,3 +556,10 @@ function dd(...$params) {
     echo "</pre>";
     die();
 }
+
+function redirect($url, $die=true) {
+    header('Location: ' . $url);
+    if ($die) {
+        die();
+    }
+}
