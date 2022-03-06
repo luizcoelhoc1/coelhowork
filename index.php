@@ -94,7 +94,7 @@ try {
     }
     if ($pagina->open_transaction) {
         $connection = Transaction::open();
-        if ($pagina->throw_error_on_connection_fail) {
+        if ($pagina->throw_error_on_connection_fail && !$connection) {
             throw new Exception("Error on try connect in database", 500);
         }
     }
