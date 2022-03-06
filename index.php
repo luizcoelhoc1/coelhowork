@@ -84,7 +84,10 @@ foreach ($routes as $route => $controller) {
 $pagina = new $class();
 try {
     if ($pagina->open_transaction) {
-        Transaction::open();
+        $connection = Transaction::open();
+        if ($pagina->throw_error_on_connection_fail) {
+            throw new Exception("Error on try connect in database");
+        }
     }
     
     ob_start();

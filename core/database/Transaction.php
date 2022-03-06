@@ -2,14 +2,17 @@
 
 final class Transaction {
 
-    private static $conneciton;
+    private static $conneciton = false;
     private function __construct() {}
 
     public static function open() {
         if (empty(self::$conneciton)) {
             self::$conneciton = Connection::open();
-            self::$conneciton->beginTransaction();
+            if (self::$conneciton) {
+                self::$conneciton->beginTransaction();
+            }
         }
+        return self::$conneciton;
     }
 
     public static function get() {
