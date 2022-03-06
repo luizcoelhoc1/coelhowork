@@ -1,6 +1,6 @@
 <?php
 
-class Home extends Controller {
+class Home extends FullRequestController {
 
     public function get(...$params) {
         $this->template = "template/wellcomeTemplate.php";

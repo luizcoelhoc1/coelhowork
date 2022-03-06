@@ -98,20 +98,6 @@ try {
         $params = explode("/", $path);
         $pagina->$method(...$params);
     }
-    /**
-        //set lang
-        $langDefaultBrowser = locale_accept_from_http($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
-        $langPath = is_file($langPath = "lang/" . $langDefaultBrowser . ".php") ?
-                $langPath :
-                "lang/" . __LANGDEFAULT . ".php";
-        require_once $langPath;
-        $fullPage = new Template($layout->output());
-        Template::$startKey = "{@";
-        Template::$endKey = "}";
-        foreach (__LANGVARS as $nameVarLang => $valueVarLang) {
-            $fullPage->set($nameVarLang, $valueVarLang);
-        }
-     */
     $var = ob_get_contents();
     ob_end_clean();
     $pagina->output($var);
