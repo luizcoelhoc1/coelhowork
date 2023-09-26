@@ -1,6 +1,6 @@
 <?php
 
-class Controller {
+abstract class Controller {
 
     public $open_transaction = true;
     public $rollback_on_finish = false;
@@ -11,21 +11,13 @@ class Controller {
 
     }
 
-    public function output($params) {
-
-    }
+    abstract public function output($params);
     
-    public function loading() {
+    abstract public function loads();
 
-    }
+    abstract public function guards();
 
-    public function checks() {
-
-    }
-
-    public function output_error($exception) {
-        http_response_code(404);
-    }
+    abstract public function output_error($exception);
 
     public function controller_exists() {
         return get_class($this) !== "Controller";
