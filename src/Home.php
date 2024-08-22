@@ -10,7 +10,7 @@ class Home extends ServerRenderController {
 
     public function get(...$params) {
         $this->template = "template/wellcomeTemplate.php";
-        loadView("home/wellcome", ["teste" => "sadiojajdios"]);
+        loadView("home/wellcome", ["foo" => "bar"]);
     }
 
 }
