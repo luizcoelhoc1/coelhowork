@@ -38,16 +38,16 @@ try {
     if (!$pagina->controller_exists()) {
         throw new Exception("Not found", 404);
     }
-    if ($pagina->open_transaction) {
+    if ($pagina->openTransaction) {
         $connection = Transaction::open();
-        if ($pagina->throw_error_on_connection_fail && !$connection) {
+        if ($pagina->throwErrorOnConnectionFail && !$connection) {
             throw new Exception("Error on try connect in database", 500);
         }
     }
     
     ob_start();
-    $pagina->loading();
-    $pagina->checks();
+    $pagina->loads();
+    $pagina->guards();
     $method = strtolower($_SERVER['REQUEST_METHOD']);
     if (method_exists($pagina, $method)) {
         $params = explode("/", $path);

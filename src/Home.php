@@ -1,6 +1,12 @@
 <?php
 
-class Home extends FullRequestController {
+class Home extends ServerRenderController {
+
+    public function __construct() {
+        parent::__construct(
+            openTransaction: false
+        );
+    }
 
     public function get(...$params) {
         $this->template = "template/wellcomeTemplate.php";

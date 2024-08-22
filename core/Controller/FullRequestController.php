@@ -53,4 +53,13 @@ abstract class FullRequestController extends Controller {
             redirect("/", true);
         }
     }
+
+    public function loads() {
+
+    }
+
+    public function guards() {
+
+    }
+
 }

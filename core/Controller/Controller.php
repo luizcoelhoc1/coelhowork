@@ -2,12 +2,21 @@
 
 abstract class Controller {
 
-    public $open_transaction = true;
-    public $rollback_on_finish = false;
-    public $rollback_on_exception = false;
-    public $throw_error_on_connection_fail = true;
+    public $openTransaction;
+    public $rollbackOnFinish;
+    public $rollbackOnException;
+    public $throwErrorOnConnectionFail;
 
-    function __construct() {
+    function __construct(
+        $openTransaction = true,
+        $rollbackOnFinish = false,
+        $rollbackOnException = false,
+        $throwErrorOnConnectionFail = true,
+    ) {
+        $this->openTransaction = $openTransaction;
+        $this->rollbackOnFinish = $rollbackOnFinish;
+        $this->rollbackOnException = $rollbackOnException;
+        $this->throwErrorOnConnectionFail = $throwErrorOnConnectionFail;
 
     }
 
