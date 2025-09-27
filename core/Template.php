@@ -1,11 +1,12 @@
 <?php
+namespace Coelho;
 
 class Template {
 
     private $file;
     private $values = array();
-    public static $startKey = "[@";
-    public static $endKey = "]";
+    public $startKey = "[@";
+    public $endKey = "]";
 
     public function __construct($resource, $values = []) {
         if ($resource instanceof Template) {
@@ -33,12 +34,12 @@ class Template {
     }
 
     public function getAllKeysInTemplate() {
-        $splits = explode(self::$startKey, $this->file);
+        $splits = explode($this->startKey, $this->file);
         $result = array();
         foreach ($splits as $key => $value) {
             if ($key == 0)
                 continue;
-            $result[] = explode(self::$endKey, $value)[0];
+            $result[] = explode($this->endKey, $value)[0];
         }
         return array_unique($result);
     }
@@ -49,7 +50,7 @@ class Template {
 
     public function output() {
         foreach ($this->values as $key => $valor) {
-            $tagToValor = self::$startKey . $key . self::$endKey;
+            $tagToValor = $this->startKey . $key . $this->endKey;
             $this->file = str_replace($tagToValor, $valor, $this->file);
         }
         return $this->file;
@@ -78,8 +79,8 @@ class Template {
         return $saida;
     }
 
-    public static function encodeStrWithKey($str) {
-        return self::$startKey . $str . self::$endKey;
+    public function encodeStrWithKey($str) {
+        return $this->startKey . $str . $this->endKey;
     }
 
 }

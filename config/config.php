@@ -1,3 +1,4 @@
 <?php
 
-putenv("ENVELOPMENT=production");
+putenv("ENVIRONMENT=production");
+$_ENV["ENVIRONMENT"] = getenv("ENVIRONMENT");

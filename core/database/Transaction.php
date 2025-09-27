@@ -1,43 +1,47 @@
 <?php
 
+namespace Coelho\database;
+use Coelho\database\Connection;
+
 final class Transaction {
 
-    private static $conneciton = false;
+    private static $connecitons = [];
     private function __construct() {}
 
-    public static function open() {
-        if (empty(self::$conneciton)) {
-            self::$conneciton = Connection::open();
-            if (self::$conneciton) {
-                self::$conneciton->beginTransaction();
-            }
-        }
-        return self::$conneciton;
-    }
-
-    public static function get() {
-        return self::$conneciton;
-    }
-
-    public static function close() {
-        if (self::$conneciton) {
-            self::$conneciton->commit();
-            self::$conneciton = NULL;
+     private static function open(string $nameTransaction = "default") {
+        self::$connecitons[$nameTransaction] = Connection::open();
+        if (!empty(self::$connecitons[$nameTransaction])) {
+            self::$connecitons[$nameTransaction]->beginTransaction();
         }
     }
 
-    
-    public static function rollback() {
-        if (self::$conneciton) {
-            self::$conneciton->rollback();
-            self::$conneciton = NULL;
+    public static function get($nameTransaction = "default") {
+        if (empty(self::$connecitons[$nameTransaction])) {
+            self::open($nameTransaction);
+        }
+        return self::$connecitons[$nameTransaction];
+    }
+
+    public static function close($nameTransaction = "default") {
+        if (!empty(self::$connecitons[$nameTransaction])) {
+            self::$connecitons[$nameTransaction]->commit();
+            self::$connecitons[$nameTransaction] = NULL;
         }
     }
-    public static function lastInsertId() {
-        return self::$conneciton->lastInsertId();
+
+    public static function rollback($nameTransaction = "default") {
+        if (!empty(self::$connecitons[$nameTransaction])) {
+            self::$connecitons[$nameTransaction]->rollback();
+            self::$connecitons[$nameTransaction] = NULL;
+        }
     }
-    public static function lastCountQuery() {
-        return self::$conneciton->lastInsertId();
+
+    public static function lastInsertId($nameTransaction = "default") {
+        return self::$connecitons[$nameTransaction]->lastInsertId();
+    }
+
+    public static function lastCountQuery($nameTransaction = "default") {
+        return self::$connecitons[$nameTransaction]->lastInsertId();
     }
 
 }

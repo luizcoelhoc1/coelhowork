@@ -1,26 +1,22 @@
 <?php
 
-spl_autoload_register(function ($classe) {
-    if ($classe == "PHPMailer") {
-        require_once 'plugin/PHPMailer/PHPMailerAutoload.php';
-        return;
-    }
-    if ($classe == "Facebook\Facebook") {
-        require_once 'plugins/FacebookLogin/autoload.php';
-    }
-
-    $getDirTmpFunction = function($path, $classe, $getDirTmpFunction) {
-        $dirs = getDir($path);
-        foreach ($dirs as $dir) {
-            if (is_dir("$path/$dir")) {
-                $getDirTmpFunction("$path/$dir", $classe, $getDirTmpFunction);
-            } else {
-                if ($classe . __EXTENSIONFILESCLASS == $dir) {
-                    include_once "$path/$dir";
-                }
+$autoloadMap = [
+    'App\\' => __DIR__ . "/",
+    'Coelho\\' => __DIR__ . '/core/',
+];
+spl_autoload_register(function ($class) use ($autoloadMap) {
+    foreach ($autoloadMap as $prefix => $baseDir) {
+        if (strncmp($prefix, $class, strlen($prefix)) === 0) {
+            $relative = substr($class, strlen($prefix));
+            $file = $baseDir . str_replace('\\', '/', $relative) . '.php';
+            if (file_exists($file)) {
+                require $file;
+                return;
             }
         }
-    };
-
-    $getDirTmpFunction(__ROOT . "/class/model", $classe, $getDirTmpFunction);
+    }
 });
+
+foreach (glob(__DIR__ . '/routes/*.php') as $arquivo) {
+    require_once $arquivo;
+}
